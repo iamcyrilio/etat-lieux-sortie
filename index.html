@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>État des lieux de sortie — Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1f2a2e;
+    --paper:#fbfaf6;
+    --paper-shade:#f1efe6;
+    --slate:#333d3f;
+    --amber:#c07a2b;
+    --green:#3f7a52;
+    --red:#a8402f;
+    --line:#d9d4c4;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--slate);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(255,255,255,0.05), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(255,255,255,0.04), transparent 40%);
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    padding:32px 16px 80px;
+  }
+  .board{
+    max-width:760px;
+    margin:0 auto;
+    background:var(--paper);
+    border-radius:6px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.35), 0 2px 0 rgba(0,0,0,0.1);
+    position:relative;
+    padding-top:34px;
+  }
+  /* clip décoratif */
+  .clip{
+    position:absolute;
+    top:-26px;
+    left:50%;
+    transform:translateX(-50%);
+    width:88px;
+    height:52px;
+    z-index:3;
+  }
+  .clip svg{width:100%;height:100%;filter:drop-shadow(0 6px 8px rgba(0,0,0,0.35));}
+
+  header{
+    padding:28px 40px 20px;
+    border-bottom:2px solid var(--line);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:28px;
+    margin:0 0 4px;
+    line-height:1.15;
+  }
+  .subtitle{
+    color:#5b6567;
+    font-size:14px;
+    margin:0;
+  }
+
+  .meta{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    padding:20px 40px;
+    border-bottom:1px solid var(--line);
+    background:var(--paper-shade);
+  }
+  .meta label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#7a746a;
+    margin-bottom:4px;
+  }
+  .meta input{
+    width:100%;
+    border:none;
+    border-bottom:1.5px solid #c7c1b0;
+    background:transparent;
+    padding:4px 2px;
+    font-size:14px;
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+  }
+  .meta input:focus{outline:none; border-bottom-color:var(--amber);}
+  .fixed-address{
+    font-size:14px;
+    line-height:1.4;
+    padding:4px 2px;
+    color:var(--ink);
+  }
+
+  .progress-wrap{
+    padding:16px 40px 8px;
+  }
+  .progress-label{
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:#7a746a;
+    margin-bottom:6px;
+  }
+  .progress-track{
+    height:8px;
+    background:#e6e2d4;
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--amber), var(--green));
+    transition:width .25s ease;
+  }
+
+  .category{
+    padding:18px 40px 4px;
+  }
+  .category h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--slate);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:0 0 10px;
+  }
+  .category h2::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--line);
+  }
+
+  .item{
+    border-bottom:1px dashed var(--line);
+    padding:10px 0;
+  }
+  .item-row{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .item-row input[type=checkbox]{
+    appearance:none;
+    -webkit-appearance:none;
+    width:20px; height:20px;
+    min-width:20px;
+    border:1.5px solid #a39b86;
+    border-radius:4px;
+    margin-top:1px;
+    cursor:pointer;
+    position:relative;
+    background:#fff;
+    transition:all .15s ease;
+  }
+  .item-row input[type=checkbox]:checked{
+    background:var(--green);
+    border-color:var(--green);
+  }
+  .item-row input[type=checkbox]:checked::after{
+    content:"✓";
+    position:absolute;
+    top:-3px; left:3px;
+    color:#fff;
+    font-size:14px;
+    font-weight:700;
+  }
+  .item-text{
+    flex:1;
+    font-size:14.5px;
+    line-height:1.4;
+    padding-top:1px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .item.checked .item-text{color:#59615f;}
+  .comment-toggle{
+    background:none; border:none;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:#9a9284;
+    cursor:pointer;
+    padding:2px 6px;
+    white-space:nowrap;
+  }
+  .comment-toggle:hover{color:var(--red);}
+  .comment-box{
+    display:none;
+    margin:8px 0 0 32px;
+  }
+  .comment-box.open{display:block;}
+  .comment-box textarea{
+    width:100%;
+    min-height:52px;
+    resize:vertical;
+    border:1px solid var(--line);
+    border-left:3px solid var(--red);
+    border-radius:3px;
+    padding:8px 10px;
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    background:#fffdf9;
+  }
+  .comment-box textarea:focus{outline:none; border-left-color:var(--red); box-shadow:0 0 0 2px rgba(168,64,47,0.08);}
+
+  .sign-section{
+    padding:26px 40px 10px;
+    border-top:2px solid var(--line);
+    margin-top:10px;
+  }
+  .sign-section h2{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    font-weight:600;
+    margin:0 0 16px;
+  }
+  .signer{
+    margin-bottom:26px;
+  }
+  .signer label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#7a746a;
+    margin-bottom:6px;
+  }
+  .signer input[type=text]{
+    width:100%;
+    border:none;
+    border-bottom:1.5px solid #c7c1b0;
+    background:transparent;
+    padding:4px 2px;
+    font-size:14px;
+    margin-bottom:12px;
+    font-family:'Inter', sans-serif;
+  }
+  .signer input[type=text]:focus{outline:none; border-bottom-color:var(--amber);}
+  canvas.pad{
+    width:100%;
+    height:130px;
+    background:#fffefb;
+    border:1.5px dashed #c7c1b0;
+    border-radius:6px;
+    touch-action:none;
+    cursor:crosshair;
+  }
+  .pad-controls{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:6px;
+  }
+  .pad-controls button{
+    background:none;
+    border:none;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:#9a9284;
+    cursor:pointer;
+  }
+  .pad-controls button:hover{color:var(--red);}
+
+  .submit-row{
+    padding:8px 40px 36px;
+  }
+  .submit-btn{
+    width:100%;
+    padding:15px;
+    background:var(--slate);
+    color:#fbfaf6;
+    border:none;
+    border-radius:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .submit-btn:hover{background:#212a2c;}
+  .submit-btn:disabled{background:#9a9284; cursor:not-allowed;}
+
+  .status-msg{
+    margin-top:12px;
+    font-size:13px;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .status-msg.ok{color:var(--green);}
+  .status-msg.err{color:var(--red);}
+
+  .stamp{
+    display:none;
+    position:absolute;
+    top:100px;
+    right:24px;
+    border:3px solid var(--green);
+    color:var(--green);
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:13px;
+    padding:6px 12px;
+    border-radius:6px;
+    transform:rotate(8deg);
+    letter-spacing:0.08em;
+    opacity:0.85;
+  }
+  .stamp.show{display:block;}
+
+  .config-note{
+    max-width:760px;
+    margin:16px auto 0;
+    background:rgba(255,255,255,0.08);
+    color:#e7e4da;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    line-height:1.6;
+    padding:14px 18px;
+    border-radius:6px;
+  }
+  .config-note code{background:rgba(0,0,0,0.25); padding:1px 5px; border-radius:3px;}
+
+  @media (max-width:600px){
+    header, .meta, .category, .sign-section, .submit-row{padding-left:22px; padding-right:22px;}
+    .meta{grid-template-columns:1fr;}
+    h1{font-size:23px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <div class="clip">
+    <svg viewBox="0 0 88 52" xmlns="http://www.w3.org/2000/svg">
+      <rect x="30" y="0" width="28" height="14" rx="7" fill="#8a8f8a"/>
+      <rect x="14" y="10" width="60" height="30" rx="15" fill="#a7aca6" stroke="#7d827c" stroke-width="2"/>
+      <rect x="24" y="18" width="40" height="14" rx="7" fill="#bfc4bd"/>
+    </svg>
+  </div>
+
+  <div class="stamp" id="stamp">✓ CONFORME</div>
+
+  <header>
+    <div class="eyebrow">Formulaire n°EDL — Sortie</div>
+    <h1>État des lieux de sortie</h1>
+    <p class="subtitle">À remplir avec les voyageurs avant leur départ. Cochez chaque point vérifié, ajoutez un commentaire si besoin.</p>
+  </header>
+
+  <div class="meta">
+    <div>
+      <label>Date</label>
+      <input type="date" id="meta-date">
+    </div>
+    <div>
+      <label>Adresse du logement</label>
+      <div class="fixed-address">46, Chemin de la Grotte<br>74320 Sevrier</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span id="progress-text">0 / 0 points vérifiés</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <div id="categories"></div>
+
+  <div class="sign-section">
+    <h2>Signatures</h2>
+
+    <div class="signer">
+      <label>Nom de la femme de ménage</label>
+      <input type="text" id="name-cleaner" placeholder="Nom et prénom">
+      <canvas class="pad" id="pad-cleaner"></canvas>
+      <div class="pad-controls"><button type="button" data-clear="pad-cleaner">Effacer la signature</button></div>
+    </div>
+
+    <div class="signer">
+      <label>Nom du/des voyageur(s)</label>
+      <input type="text" id="name-guest" placeholder="Nom et prénom">
+      <canvas class="pad" id="pad-guest"></canvas>
+      <div class="pad-controls"><button type="button" data-clear="pad-guest">Effacer la signature</button></div>
+    </div>
+  </div>
+
+  <div class="submit-row">
+    <button class="submit-btn" id="submit-btn">Valider et envoyer l'état des lieux</button>
+    <div class="status-msg" id="status-msg"></div>
+  </div>
+</div>
+
+<div class="config-note">
+  ✅ EmailJS connecté. Cette page est prête à être mise en ligne.
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// ---------- Adresse fixe ----------
+const ADDRESS = "46, Chemin de la Grotte, 74320 Sevrier";
+
+// ---------- Contenu de la checklist ----------
+const CHECKLIST = [
+  { cat: "Entrée & général", items: [
+    "Pas d'odeur de fumée ou cigarette",
+    "Pas de traces visibles sur le mur du couloir"
+  ]},
+  { cat: "Salle de bain", items: [
+    "Pas de serviettes manquantes",
+    "Baignoire et évier propres",
+    "Sèche-cheveux présent et fonctionnel (sous le lavabo)"
+  ]},
+  { cat: "WC", items: [
+    "WC propres"
+  ]},
+  { cat: "Chambre", items: [
+    "Linge de lit retiré et complet",
+    "Parquet non abîmé",
+    "Murs propres",
+    "Volets fonctionnels"
+  ]},
+  { cat: "Cuisine", items: [
+    "Réfrigérateur / congélateur vidés et propres",
+    "Micro-ondes propre et fonctionnel",
+    "Évier et plan de travail propres",
+    "Poubelles vidées",
+    "Four propre et fonctionnel",
+    "Plaques de cuisson testées et propres",
+    "Vaisselle complète, rien de cassé"
+  ]},
+  { cat: "Salon / séjour", items: [
+    "Canapé en bon état, pas de taches",
+    "Mobilier en bon état",
+    "Télévision et télécommande présentes & fonctionnelles",
+    "Rideaux propres",
+    "Volets fonctionnels"
+  ]},
+  { cat: "Extérieur", items: [
+    "Table, chaises et salon de jardin présents et en bon état",
+    "Pas de problèmes visibles dans le jardin"
+  ]},
+  { cat: "Vérifications finales", items: [
+    "Aucun objet personnel des voyageurs oublié",
+    "Clés remises et comptées"
+  ]}
+];
+
+// ---------- Construction du DOM ----------
+const container = document.getElementById('categories');
+let totalItems = 0;
+
+CHECKLIST.forEach((group, gi) => {
+  const catDiv = document.createElement('div');
+  catDiv.className = 'category';
+  const h2 = document.createElement('h2');
+  h2.textContent = group.cat;
+  catDiv.appendChild(h2);
+
+  group.items.forEach((text, ii) => {
+    totalItems++;
+    const id = `item-${gi}-${ii}`;
+    const item = document.createElement('div');
+    item.className = 'item';
+    item.innerHTML = `
+      <div class="item-row">
+        <input type="checkbox" id="${id}">
+        <label class="item-text" for="${id}">${text}</label>
+        <button type="button" class="comment-toggle" data-target="comment-${gi}-${ii}">+ commentaire</button>
+      </div>
+      <div class="comment-box" id="comment-box-${gi}-${ii}">
+        <textarea id="comment-${gi}-${ii}" placeholder="Ex : vaisselle cassée, tache sur le canapé…"></textarea>
+      </div>
+    `;
+    catDiv.appendChild(item);
+  });
+  container.appendChild(catDiv);
+});
+
+document.getElementById('meta-date').valueAsDate = new Date();
+
+// checkbox behavior + progress
+function updateProgress(){
+  const boxes = document.querySelectorAll('.item-row input[type=checkbox]');
+  let checked = 0;
+  boxes.forEach(b => { if(b.checked) checked++; });
+  document.getElementById('progress-text').textContent = `${checked} / ${boxes.length} points vérifiés`;
+  const pct = boxes.length ? Math.round(checked/boxes.length*100) : 0;
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('stamp').classList.toggle('show', pct === 100);
+}
+
+container.addEventListener('change', (e) => {
+  if(e.target.matches('input[type=checkbox]')){
+    e.target.closest('.item').classList.toggle('checked', e.target.checked);
+    updateProgress();
+  }
+});
+
+container.addEventListener('click', (e) => {
+  if(e.target.matches('.comment-toggle')){
+    const targetId = e.target.getAttribute('data-target');
+    const box = document.getElementById('comment-box-' + targetId.replace('comment-',''));
+    box.classList.toggle('open');
+    e.target.textContent = box.classList.contains('open') ? '– masquer' : '+ commentaire';
+  }
+});
+
+updateProgress();
+
+// ---------- Signature pads ----------
+function setupPad(canvasId){
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  let hasContent = false;
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.scale(ratio, ratio);
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#1f2a2e';
+  }
+  resize();
+
+  function pos(e){
+    const rect = canvas.getBoundingClientRect();
+    const p = e.touches ? e.touches[0] : e;
+    return { x: p.clientX - rect.left, y: p.clientY - rect.top };
+  }
+  function start(e){ drawing = true; hasContent = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+  function move(e){ if(!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+  function end(){ drawing = false; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', move, {passive:false});
+  canvas.addEventListener('touchend', end);
+
+  return {
+    clear(){ ctx.clearRect(0,0,canvas.width,canvas.height); hasContent = false; },
+    isEmpty(){ return !hasContent; },
+    toDataURL(){ return canvas.toDataURL('image/png'); }
+  };
+}
+
+const padCleaner = setupPad('pad-cleaner');
+const padGuest = setupPad('pad-guest');
+
+document.querySelectorAll('[data-clear]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.getAttribute('data-clear');
+    (target === 'pad-cleaner' ? padCleaner : padGuest).clear();
+  });
+});
+
+// ---------- Envoi (EmailJS) ----------
+const EMAILJS_PUBLIC_KEY = "Op-Zy2cvFR0tFtLU3";
+const EMAILJS_SERVICE_ID = "service_2hp5g5a";
+const EMAILJS_TEMPLATE_ID = "template_bzcuvfi";
+emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+function buildReport(){
+  const lines = [];
+  lines.push(`État des lieux de sortie — ${ADDRESS}`);
+  lines.push(`Date : ${document.getElementById('meta-date').value}`);
+  lines.push('');
+  document.querySelectorAll('.category').forEach(catDiv => {
+    const title = catDiv.querySelector('h2').textContent;
+    lines.push(`## ${title}`);
+    catDiv.querySelectorAll('.item').forEach(item => {
+      const cb = item.querySelector('input[type=checkbox]');
+      const label = item.querySelector('.item-text').textContent;
+      const textarea = item.querySelector('textarea');
+      const comment = textarea && textarea.value.trim();
+      lines.push(`- [${cb.checked ? 'x' : ' '}] ${label}${comment ? '  → NOTE : ' + comment : ''}`);
+    });
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+
+document.getElementById('submit-btn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('status-msg');
+  const btn = document.getElementById('submit-btn');
+
+  if(padCleaner.isEmpty() || padGuest.isEmpty()){
+    statusEl.textContent = "Merci de faire signer la femme de ménage ET le/les voyageur(s) avant l'envoi.";
+    statusEl.className = 'status-msg err';
+    return;
+  }
+
+  btn.disabled = true;
+  statusEl.textContent = "Envoi en cours…";
+  statusEl.className = 'status-msg';
+
+  try {
+    const params = {
+      subject: `État des lieux — ${ADDRESS} — ${document.getElementById('meta-date').value}`,
+      date: document.getElementById('meta-date').value,
+      adresse: ADDRESS,
+      rapport: buildReport(),
+      nom_femme_menage: document.getElementById('name-cleaner').value,
+      nom_voyageurs: document.getElementById('name-guest').value,
+      signature_femme_menage: padCleaner.toDataURL(),
+      signature_voyageurs: padGuest.toDataURL()
+    };
+
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+
+    statusEl.textContent = "État des lieux envoyé par e-mail ✓";
+    statusEl.className = 'status-msg ok';
+  } catch(err){
+    const detail = (err && err.text) ? err.text : (err && err.message ? err.message : 'erreur inconnue');
+    statusEl.textContent = "Échec de l'envoi (" + detail + "). Vérifiez la configuration EmailJS (clés/IDs).";
+    statusEl.className = 'status-msg err';
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
